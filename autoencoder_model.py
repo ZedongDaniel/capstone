@@ -4,9 +4,9 @@ import pandas as pd
 import torch
 import torch.nn as nn
 
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
 def data_to_tensor(data, dtype = torch.float32):
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     return torch.tensor(np.array(data), dtype=dtype).to(device)
 
 def count_parameters(model):
@@ -17,7 +17,7 @@ class autoencoder_dataset(torch.utils.data.Dataset):
         sample_index = data.shift(seq_n-1).dropna().index.tolist()
         self.data_list = []
         for sample in sample_index:
-            data_tuple = (data_to_tensor(data.loc[:sample][-seq_n:]),
+            data_tuple = (data_to_tensor(data.loc[:sample].iloc[-seq_n:]),
                           data_to_tensor(data.loc[:sample].iloc[-seq_n:]))
             self.data_list.append(data_tuple)
 

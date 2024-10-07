@@ -1,5 +1,5 @@
 from stock_data import StockData
-from autoencoder import autoencoder_dataset, lstm_autoencoder
+from autoencoder_model import autoencoder_dataset, lstm_autoencoder
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
@@ -18,7 +18,6 @@ def equal_index_construction(data: pd.DataFrame):
     df['w'] = df.groupby('date', group_keys=False)['adjusted_close'].transform(lambda x : 1 / len(x))
     index = df.groupby('date').apply(lambda x: x['log_ret']@x['w'])
     return index
-
 
 def train(model, batch_size, train_dataset, valid_dataset, num_epochs, lr, loss_function, early_stop, patience, verbose):
     def init_weights(model):
@@ -54,7 +53,7 @@ def train(model, batch_size, train_dataset, valid_dataset, num_epochs, lr, loss_
         train_loss.append(mean_train_loss)
 
         if verbose:
-            print(f"Epoch [{epoch + 1}/{num_epochs}]: \tTraining Loss: {mean_train_loss:.4f}", end="")
+            print(f"epoch [{epoch + 1}/{num_epochs}]: \ttraining loss: {mean_train_loss:.4f}", end="")
 
         model.eval()
         with torch.no_grad():
@@ -67,7 +66,7 @@ def train(model, batch_size, train_dataset, valid_dataset, num_epochs, lr, loss_
             valid_loss.append(mean_valid_loss)
 
         if verbose:
-            print(f"\tValidation Loss: {mean_valid_loss:.4f}")
+            print(f"\tvalidation Loss: {mean_valid_loss:.4f}")
 
         if early_stop:
             if mean_valid_loss < best_valid_loss:
@@ -93,20 +92,25 @@ def train(model, batch_size, train_dataset, valid_dataset, num_epochs, lr, loss_
     return None
 
 
-stock = StockData('sp_400_midcap.csv', '662166cb8e3d13.57537943')
-df = stock.fetch_all_stocks(period = 'd', start = '2000-01-01', end = '2024-8-30')
-mid_cap_index = equal_index_construction(df)
+# stock = StockData('sp_400_midcap.csv', '662166cb8e3d13.57537943')
+# df = stock.fetch_all_stocks(period = 'd', start = '2000-01-01', end = '2024-8-30')
+# mid_cap_index = equal_index_construction(df)
+# mid_cap_index.to_csv('mid_cap_index.csv')
 
+device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+
+mid_cap_index = pd.read_csv('index_data/mid_cap_index.csv', index_col='date')
 n = int(len(mid_cap_index) * 0.8)
 train_n = int(n * 0.8)
 train_df = mid_cap_index.iloc[:train_n]
 valid_df = mid_cap_index.iloc[train_n:]
 
-seq_n = 20
+seq_n = 100
 train_dataset = autoencoder_dataset(train_df, seq_n)
 valid_dataset = autoencoder_dataset(valid_df, seq_n)
 
 model = lstm_autoencoder(input_size = 1, seq_n = seq_n)
+model.to(device)
 
 train(
     model = model,
@@ -115,11 +119,17 @@ train(
     valid_dataset = valid_dataset,
     num_epochs= 100,
     lr = 1e-5,
-    loss_function = nn.MSELoss(),
+    loss_function = nn.L1Loss(),
     early_stop = True,
     patience = 5,
     verbose = True
 )
+
+model_path = 'model/autoencoder_2024_10_07.pth'
+torch.save(model.state_dict(), model_path)
+print(f"Model saved to {model_path}")
+
+
 
 
 
