@@ -1,4 +1,3 @@
-from stock_data import StockData
 import numpy as np
 import pandas as pd
 import torch
@@ -17,8 +16,8 @@ class autoencoder_dataset(torch.utils.data.Dataset):
         sample_index = data.shift(seq_n-1).dropna().index.tolist()
         self.data_list = []
         for sample in sample_index:
-            data_tuple = (data_to_tensor(data.loc[:sample].iloc[-seq_n:]),
-                          data_to_tensor(data.loc[:sample].iloc[-seq_n:]))
+            data_tuple = (data_to_tensor(data.loc[:sample].iloc[-seq_n:]).unsqueeze(-1),
+                          data_to_tensor(data.loc[:sample].iloc[-seq_n:]).unsqueeze(-1))
             self.data_list.append(data_tuple)
 
     def __len__(self):
@@ -26,36 +25,74 @@ class autoencoder_dataset(torch.utils.data.Dataset):
     
     def __getitem__(self, index):
         return self.data_list[index]
+
+
+class RecurrentEncoder(nn.Module):
+    def __init__(self):
+        super(RecurrentEncoder, self).__init__()
+        self.lstm1 = nn.LSTM(input_size=1, hidden_size=100, batch_first=True)
+        self.lstm2 = nn.LSTM(input_size=100, hidden_size=30, batch_first=True)
+
+    def forward(self, x):
+        x, _ = self.lstm1(x)
+        _, (h_n, _) = self.lstm2(x)
+        return h_n.squeeze(0)
+
+class RecurrentDecoder(nn.Module):
+    def __init__(self):
+        super(RecurrentDecoder, self).__init__()
+        self.repeat_vector = 100  
+        self.lstm = nn.LSTM(input_size=30, hidden_size=100, batch_first=True)
+        self.dense = nn.Linear(100, 1)
+
+    def forward(self, x):
+        # Repeat the input vector across the sequence length
+        x = x.unsqueeze(1).repeat(1, self.repeat_vector, 1)
+        x, _ = self.lstm(x)
+        x = self.dense(x)
+        return x
+
+class RecurrentAutoencoder(nn.Module):
+    def __init__(self):
+        super(RecurrentAutoencoder, self).__init__()
+        self.encoder = RecurrentEncoder()
+        self.decoder = RecurrentDecoder()
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
     
 class lstm_autoencoder(nn.Module):
-    def __init__(self, input_size, seq_n):
+    def __init__(self, input_size, hidden_size, latent_size, num_layers=1):
         super(lstm_autoencoder, self).__init__()
-        self.input_size = input_size
-        self.seq_n = seq_n
+        self.relu = nn.ReLU()
+        self.encoder_lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.encoder_hidden = nn.Linear(hidden_size, latent_size)
 
-        self.encoder_1 = nn.LSTM(input_size=input_size, hidden_size=8, batch_first=True)
-        self.encoder_2 = nn.LSTM(input_size=8, hidden_size=4, batch_first=True)
+        self.decoder_hidden = nn.Linear(latent_size, input_size)  # Project to input_size for hidden state compatibility
+        self.decoder_cell = nn.Linear(hidden_size, input_size)  # Project cell state to input_size as well
+        self.decoder_lstm = nn.LSTM(input_size, input_size, num_layers, batch_first=True)
 
-        self.bridge = nn.Linear(4, 4)
+    def forward(self, x: torch.Tensor):
+        # Encoding
+        encoder_output, (encoder_hidden, encoder_cell) = self.encoder_lstm(x)
+        latent_layer = self.encoder_hidden(encoder_hidden[-1, :, :])  # (batch, latent_size)
 
-        self.decoder_1 = nn.LSTM(input_size=4, hidden_size=4, batch_first=True)
-        self.decoder_2 = nn.LSTM(input_size=4, hidden_size=8, batch_first=True)
+        # Decoding
+        decoder_hidden = self.decoder_hidden(latent_layer).unsqueeze(0)  # (1, batch, input_size)
+        decoder_cell = self.decoder_cell(encoder_cell[-1, :, :]).unsqueeze(0)  # (1, batch, input_size)
+        
+        decoder_output, _ = self.decoder_lstm(x, (decoder_hidden, decoder_cell))
 
-        self.output_layer = nn.Linear(8, input_size)
+        return decoder_output
+    
+if __name__ == "__main__":
+    num_params = count_parameters(lstm_autoencoder(input_size = 1, hidden_size = 64, latent_size= 32, num_layers = 1))
+    print(f"total params: {num_params}")
 
-    def forward(self, x: torch.tensor):
-        # x: (b, t, 1)
-        x, _ = self.encoder_1(x) # (b, t, 8)
-        x, (h, c) = self.encoder_2(x) # (b, t, 4)
+    
 
-        x = self.bridge(h[-1,:,:])  # (b, 4)
-        x = x.unsqueeze(1).repeat(1, self.seq_n, 1) # (b, 4) -> (b, 1, 4) -> (b, seq_n, 4)
-
-        x, _ = self.decoder_1(x) # (b, seq_n, 4)
-        x, _ = self.decoder_2(x)  # (b, seq_n, 8)
-
-        x = self.output_layer(x) # (b, seq_n, 1)
-        return x
 
 
 

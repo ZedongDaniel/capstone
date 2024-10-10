@@ -1,5 +1,4 @@
-from stock_data import StockData
-from autoencoder_model import autoencoder_dataset, lstm_autoencoder
+from autoencoder_model import autoencoder_dataset, lstm_autoencoder,RecurrentAutoencoder
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt 
@@ -8,16 +7,6 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as f
 
-
-def equal_index_construction(data: pd.DataFrame):
-    def log_ret(s:pd.Series):
-        return np.log(s / s.shift(1))
-    
-    data['log_ret'] = data.groupby('ticker', group_keys=False)['adjusted_close'].apply(log_ret)
-    df = data.dropna().copy()
-    df['w'] = df.groupby('date', group_keys=False)['adjusted_close'].transform(lambda x : 1 / len(x))
-    index = df.groupby('date').apply(lambda x: x['log_ret']@x['w'])
-    return index
 
 def train(model, batch_size, train_dataset, valid_dataset, num_epochs, lr, loss_function, early_stop, patience, verbose):
     def init_weights(model):
@@ -92,42 +81,41 @@ def train(model, batch_size, train_dataset, valid_dataset, num_epochs, lr, loss_
     return None
 
 
-# stock = StockData('sp_400_midcap.csv', '662166cb8e3d13.57537943')
-# df = stock.fetch_all_stocks(period = 'd', start = '2000-01-01', end = '2024-8-30')
-# mid_cap_index = equal_index_construction(df)
-# mid_cap_index.to_csv('mid_cap_index.csv')
+if __name__ == "__main__":
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    mid_cap_index = pd.read_csv('index_data/mid_cap_index.csv', index_col='date')
+    ret = mid_cap_index.loc[:,'log_ret'] * 100
 
-mid_cap_index = pd.read_csv('index_data/mid_cap_index.csv', index_col='date')
-n = int(len(mid_cap_index) * 0.8)
-train_n = int(n * 0.8)
-train_df = mid_cap_index.iloc[:train_n]
-valid_df = mid_cap_index.iloc[train_n:]
+    n = int(len(ret) * 0.8)
+    train_n = int(n * 0.95)
+    tmp = ret.iloc[:n]
+    train_df = tmp.iloc[:train_n]
+    valid_df = tmp.iloc[train_n:]
 
-seq_n = 100
-train_dataset = autoencoder_dataset(train_df, seq_n)
-valid_dataset = autoencoder_dataset(valid_df, seq_n)
+    seq_n = 100
+    train_dataset = autoencoder_dataset(train_df, seq_n)
+    valid_dataset = autoencoder_dataset(valid_df, seq_n)
 
-model = lstm_autoencoder(input_size = 1, seq_n = seq_n)
-model.to(device)
+    # model = lstm_autoencoder(input_size = 1, seq_n = seq_n).to(device)
+    model = RecurrentAutoencoder().to(device)
 
-train(
-    model = model,
-    batch_size = 32,
-    train_dataset = train_dataset,
-    valid_dataset = valid_dataset,
-    num_epochs= 100,
-    lr = 1e-5,
-    loss_function = nn.L1Loss(),
-    early_stop = True,
-    patience = 5,
-    verbose = True
-)
+    train(
+        model = model,
+        batch_size = 32,
+        train_dataset = train_dataset,
+        valid_dataset = valid_dataset,
+        num_epochs= 50,
+        lr = 1e-3,
+        loss_function = nn.MSELoss(),
+        early_stop = False,
+        patience = 5,
+        verbose = True
+    )
 
-model_path = 'model/autoencoder_2024_10_07.pth'
-torch.save(model.state_dict(), model_path)
-print(f"Model saved to {model_path}")
+    model_path = 'model/autoencoder_2024_10_09.pth'
+    torch.save(model.state_dict(), model_path)
+    print(f"Model saved to {model_path}")
 
 
 
