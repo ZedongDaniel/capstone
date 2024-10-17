@@ -5,14 +5,14 @@ import torch.nn as nn
 
 def data_to_tensor(data, dtype=torch.float32):
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    return torch.tensor(np.array(data), dtype=dtype).squeeze(-1).to(device)
+    return torch.tensor(np.array(data), dtype=dtype).to(device)
 
-class AutoencoderDataset(torch.utils.data.Dataset):
+class CNNDataset(torch.utils.data.Dataset):
     def __init__(self, data: pd.Series, seq_n: int) -> None:
         sample_index = data.shift(seq_n-1).dropna().index.tolist()
         self.data_list = []
         for sample in sample_index:
-            data_tensor = data_to_tensor(data.loc[:sample].iloc[-seq_n:]).unsqueeze(0)
+            data_tensor = data_to_tensor(data.loc[:sample].iloc[-seq_n:].T)
             data_tuple = (data_tensor, data_tensor)
             self.data_list.append(data_tuple)
 
@@ -24,26 +24,26 @@ class AutoencoderDataset(torch.utils.data.Dataset):
     
 
 class ConvAutoencoder(nn.Module):
-    def __init__(self):
+    def __init__(self,in_channels, hidden_channels1, hidden_channels2, kernel_size, stride, padding, dropout_prob=0.2):
         super(ConvAutoencoder, self).__init__()
         
         # Encoder
         self.encoder = nn.Sequential(
-            nn.Conv1d(in_channels=1, out_channels=32, kernel_size=7, stride=2, padding=3),
+            nn.Conv1d(in_channels= in_channels, out_channels= hidden_channels1, kernel_size= kernel_size, stride= stride, padding=padding),
             nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Conv1d(in_channels=32, out_channels=16, kernel_size=7, stride=2, padding=3),
+            nn.Dropout(dropout_prob),
+            nn.Conv1d(in_channels= hidden_channels1, out_channels= hidden_channels2, kernel_size= kernel_size, stride= stride, padding= padding),
             nn.ReLU()
         )
         
         # Decoder
         self.decoder = nn.Sequential(
-            nn.ConvTranspose1d(in_channels=16, out_channels=16, kernel_size=7, stride=2, padding=3, output_padding=1),
+            nn.ConvTranspose1d(in_channels= hidden_channels2, out_channels= hidden_channels2, kernel_size= kernel_size,stride= stride, padding= padding, output_padding=1),
             nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.ConvTranspose1d(in_channels=16, out_channels=32, kernel_size=7, stride=2, padding=3, output_padding=1),
+            nn.Dropout(dropout_prob),
+            nn.ConvTranspose1d(in_channels= hidden_channels2, out_channels=hidden_channels1, kernel_size= kernel_size,stride= stride, padding= padding, output_padding=1),
             nn.ReLU(),
-            nn.ConvTranspose1d(in_channels=32, out_channels=1, kernel_size=7, padding=3)
+            nn.ConvTranspose1d(in_channels=hidden_channels1, out_channels=in_channels, kernel_size= kernel_size, padding=padding)
         )
 
     def forward(self, x):
