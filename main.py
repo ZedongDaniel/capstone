@@ -9,7 +9,8 @@ if __name__ == "__main__":
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
     mid_cap_index = pd.read_csv('index_data/mid_cap_index.csv', index_col='date')
-    ret = mid_cap_index.loc[:,'log_ret'] * 100
+    features = ['log_ret']
+    ret = mid_cap_index[features] * 100
     n = int(len(ret) * 0.8)
     train_n = int(n * 0.95)
     tmp = ret.iloc[:n]
@@ -19,15 +20,20 @@ if __name__ == "__main__":
 
 
     seq_n = 100
-
-    model_path = 'model/autoencoder_2024_10_15_conv.pth'
-    model = ConvAutoencoder().to(device)
+    model_path = 'model/autoencoder_2024_10_17_conv.pth'
+    model = ConvAutoencoder(in_channels = 1, 
+                            hidden_channels1 = 32, 
+                            hidden_channels2 = 16,
+                            kernel_size = 7,
+                            stride = 2,
+                            padding = 3, 
+                            dropout_prob=0.2).to(device)
     model.load_state_dict(torch.load(model_path, weights_only=True))
     model.eval()
     sample_index_train = train_df.shift(seq_n - 1).dropna().index.tolist()
     data_list_train = []
     for sample in sample_index_train:
-        data_list_train.append(data_to_tensor(train_df.loc[:sample].iloc[-seq_n:]).unsqueeze(0).unsqueeze(0))
+        data_list_train.append(data_to_tensor(train_df.loc[:sample].iloc[-seq_n:].T))
     y_train_pred = []
 
     for X_i in data_list_train:
@@ -36,10 +42,10 @@ if __name__ == "__main__":
             y_train_pred.append(y_i)
     y_train = np.array([x.cpu().numpy().reshape(-1) for x in data_list_train])
     train_mae_loss = np.mean(np.abs(y_train_pred - y_train), axis=1)
-    # plt.hist(train_mae_loss, bins=50)
-    # plt.xlabel("Train MAE loss")
-    # plt.ylabel("No of samples")
-    # plt.show()
+    plt.hist(train_mae_loss, bins=50)
+    plt.xlabel("Train MAE loss")
+    plt.ylabel("No of samples")
+    plt.show()
 
     threshold = np.quantile(train_mae_loss, 0.9)
     print("Reconstruction error threshold: ", threshold)
@@ -47,7 +53,7 @@ if __name__ == "__main__":
     sample_index_test = test_df.shift(seq_n - 1).dropna().index.tolist()
     data_list_test = []
     for sample in sample_index_test:
-        data_list_test.append(data_to_tensor(test_df.loc[:sample].iloc[-seq_n:]).unsqueeze(0).unsqueeze(0))
+        data_list_test.append(data_to_tensor(test_df.loc[:sample].iloc[-seq_n:].T))
     y_test_pred = []
 
     for X_i in data_list_test:
@@ -58,10 +64,10 @@ if __name__ == "__main__":
     y_test = np.array([x.cpu().numpy().reshape(-1) for x in data_list_test])
     test_mae_loss = np.mean(np.abs(y_test_pred - y_test), axis=1)
 
-    # plt.hist(test_mae_loss, bins=50)
-    # plt.xlabel("test MAE loss")
-    # plt.ylabel("No of samples")
-    # plt.show()
+    plt.hist(test_mae_loss, bins=50)
+    plt.xlabel("test MAE loss")
+    plt.ylabel("No of samples")
+    plt.show()
 
     # Detect all the samples which are anomalies.
     anomalies = test_mae_loss > threshold
