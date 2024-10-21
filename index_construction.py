@@ -23,7 +23,20 @@ def equal_index_construction(data: pd.DataFrame):
     return index
 
 stock = StockData('sp_400_midcap.csv', '662166cb8e3d13.57537943')
-df = stock.fetch_all_stocks(period = 'd', start = '2000-01-01', end = '2024-8-30')
+# df = stock.fetch_all_stocks(period = 'd', start = '2000-01-01', end = '2024-8-30')
 
-mid_cap_index = equal_index_construction(df)
-mid_cap_index.to_csv('index_data/mid_cap_index.csv')
+# mid_cap_index = equal_index_construction(df)
+# mid_cap_index.to_csv('index_data/mid_cap_index.csv')
+
+stock_info = pd.read_csv("sp_400_midcap.csv")
+sector_ls = stock_info["GICS Sector"].unique().tolist()
+sector_tmp = []
+for sector in sector_ls:
+    df = stock.fetch_stocks_by_sectors(sector=sector, period = 'd', start = '2000-01-01', end = '2024-8-30')
+    sector_idx = equal_index_construction(df)['log_ret'].rename(sector)
+    sector_tmp.append(sector_idx)
+
+data = pd.concat(sector_tmp, axis=1)
+data.to_csv('index_data/mid_cap_all_sectors_ret.csv')
+
+

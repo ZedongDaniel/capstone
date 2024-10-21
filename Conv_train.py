@@ -13,9 +13,8 @@ import torch.nn.functional as f
 if __name__ == "__main__":
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
-    mid_cap_index = pd.read_csv('index_data/mid_cap_index.csv', index_col='date')
-    features = ['log_ret']
-    ret = mid_cap_index[features] * 100
+    mid_cap_index = pd.read_csv('index_data/mid_cap_all_sectors_ret.csv', index_col='date')
+    ret = mid_cap_index * 100
     n = int(len(ret) * 0.8)
     train_n = int(n * 0.95)
     tmp = ret.iloc[:n]
@@ -25,7 +24,7 @@ if __name__ == "__main__":
     seq_n = 100
     train_dataset = CNNDataset(train_df, seq_n)
     valid_dataset = CNNDataset(valid_df, seq_n)
-    model = ConvAutoencoder(in_channels = 1, 
+    model = ConvAutoencoder(in_channels = 11, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
                             kernel_size = 7,
@@ -46,6 +45,6 @@ if __name__ == "__main__":
         verbose = True
     )
 
-    model_path = 'model/autoencoder_2024_10_17_conv.pth'
+    model_path = 'model/autoencoder_2024_10_21_conv.pth'
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to {model_path}")
