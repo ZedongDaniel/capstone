@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import torch 
-from cnn.cnn_sectors_ret import ConvAutoencoder,data_to_tensor
+from cnn.cnn1d import ConvAutoencoder,data_to_tensor
 import matplotlib.pyplot as plt 
 
 def cnn_predict(model,data,seq_n):
@@ -30,9 +30,10 @@ if __name__ == "__main__":
     valid_df = tmp.iloc[train_n:]
     test_df = ret.iloc[n:]
 
+    input_dim = train_df.shape[1]
     seq_n = 100
-    model_path = 'models/2024_10_21_cnn1d_sectors.pth'
-    model = ConvAutoencoder(in_channels = 11, 
+    model_path = 'models/2024_10_25_cnn1d_ret.pth'
+    model = ConvAutoencoder(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
                             kernel_size = 7,
@@ -57,7 +58,7 @@ if __name__ == "__main__":
 
     fig, axes = plt.subplots(3, 4, figsize=(15, 10)) 
     axes = axes.flatten()
-    for i in range(11):
+    for i in range(input_dim):
         axes[i].hist(train_mae[:, i], bins=50) 
         axes[i].set_xlabel("Train MAE")
         axes[i].set_ylabel("Frequency")
@@ -79,9 +80,9 @@ if __name__ == "__main__":
 
     # # data i is an anomaly if samples [(i - timesteps + 1) to (i)] are anomalies
     anomalous_data_in_sample = {}
-    for i in range(11):
+    for i in range(input_dim):
         sector_anomalies = anomalies_in_sample[:, i]
-        column_name = train_df.columns[i]
+        column_name = tmp.columns[i]
         if column_name not in anomalous_data_in_sample:
             anomalous_data_in_sample[column_name] = []
         for data_idx in range(seq_n - 1, len(tmp) - seq_n + 1):
@@ -95,7 +96,7 @@ if __name__ == "__main__":
     for i, column_name in enumerate(tmp.columns):
         axes[i].plot(tmp[column_name], label="Return", color="blue", linewidth=0.5) 
         anomalous_indices = anomalous_data_in_sample.get(column_name, [])
-        axes[i].scatter(anomalous_indices, tmp.iloc[anomalous_indices][column_name], color="red", label="Anomalous Return")
+        axes[i].scatter(anomalous_indices, tmp.iloc[anomalous_indices][column_name], color="red", label="Anomalous Return", s=10)
         
         axes[i].set_title(f"Sector: {column_name}")
         axes[i].set_ylabel("Return")
@@ -121,7 +122,7 @@ if __name__ == "__main__":
 
     # # data i is an anomaly if samples [(i - timesteps + 1) to (i)] are anomalies
     anomalous_data_out_sample = {}
-    for i in range(11):
+    for i in range(input_dim):
         sector_anomalies = anomalies_out_sample[:, i]
         column_name = test_df.columns[i]
         if column_name not in anomalous_data_out_sample:
@@ -137,7 +138,7 @@ if __name__ == "__main__":
     for i, column_name in enumerate(test_df.columns):
         axes[i].plot(test_df[column_name], label="Return", color="blue", linewidth=0.5) 
         anomalous_indices = anomalous_data_out_sample.get(column_name, [])
-        axes[i].scatter(anomalous_indices, test_df.iloc[anomalous_indices][column_name], color="red", label="Anomalous Return")
+        axes[i].scatter(anomalous_indices, test_df.iloc[anomalous_indices][column_name], color="red", label="Anomalous Return", s=10)
         
         axes[i].set_title(f"Sector: {column_name}")
         axes[i].set_ylabel("Return")

@@ -1,4 +1,4 @@
-from cnn.cnn_sectors_ret_vol import CNNDataset, CustomSectorLoss, ConvAutoencoder
+from cnn.cnn1d import CNNDataset, CustomSectorLoss, ConvAutoencoder
 from train_utils import train
 import numpy as np
 import pandas as pd
@@ -12,10 +12,12 @@ import torch.nn.functional as f
 
 if __name__ == "__main__":
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    seed = 42
+    torch.manual_seed(seed)
 
-    ret = pd.read_csv('index_data/mid_cap_all_sectors_ret.csv', index_col='date') * 100
+    ret = pd.read_csv('data/mid_cap_all_sectors_ret.csv', index_col='date') * 100
     ret.columns = [f'{col}_ret' for col in ret.columns]
-    vol = pd.read_csv('index_data/mid_cap_all_sectors_volume.csv', index_col='date')
+    vol = pd.read_csv('data/mid_cap_all_sectors_volume.csv', index_col='date')
     vol.columns = [f'{col}_volume' for col in vol.columns]
     full = pd.concat([ret, vol], axis=1)
 
@@ -40,11 +42,11 @@ if __name__ == "__main__":
         valid_df[col] = (valid_df[col] - mu) / std
 
 
-
+    input_dim = train_df.shape[1]
     seq_n = 100
     train_dataset = CNNDataset(train_df, seq_n)
     valid_dataset = CNNDataset(valid_df, seq_n)
-    model = ConvAutoencoder(in_channels = 22, 
+    model = ConvAutoencoder(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
                             kernel_size = 7,
@@ -65,6 +67,6 @@ if __name__ == "__main__":
         verbose = True
     )
 
-    model_path = 'models/2024_10_24_conv1d_sectors.pth'
+    model_path = 'models/2024_10_25_cnn1d_return_volume.pth'
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to {model_path}")

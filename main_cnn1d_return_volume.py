@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import torch 
-from cnn.cnn_sectors_ret_vol import ConvAutoencoder,data_to_tensor
+from cnn.cnn1d import ConvAutoencoder,data_to_tensor
 import matplotlib.pyplot as plt 
 
 def cnn_predict(model,data,seq_n):
@@ -60,10 +60,10 @@ if __name__ == "__main__":
         mu, std = z_score_map[col] 
         tmp_scale[col] = (tmp_scale[col] - mu) / std
     
-
+    input_dim = train_df.shape[1]
     seq_n = 100
-    model_path = 'models/2024_10_24_conv1d_sectors.pth'
-    model = ConvAutoencoder(in_channels = 22, 
+    model_path = 'models/2024_10_25_cnn1d_return_volume.pth'
+    model = ConvAutoencoder(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
                             kernel_size = 7,
@@ -120,14 +120,13 @@ if __name__ == "__main__":
             if np.all(sector_anomalies[data_idx - seq_n + 1 : data_idx]): # if data_idx span seq length, it is anomalous_data_point
                 anomalous_data_in_sample[column_name].append(data_idx)
 
-    print(anomalous_data_in_sample)
     fig, axes = plt.subplots(3, 4, figsize=(15, 10), sharex=True) 
     axes = axes.flatten()
 
     for i, column_name in enumerate(tmp.columns[:11]):
         axes[i].plot(tmp[column_name], label="Return", color="blue", linewidth=0.5) 
         anomalous_indices = anomalous_data_in_sample.get(column_name, [])
-        axes[i].scatter(anomalous_indices, tmp.iloc[anomalous_indices][column_name], color="red", label="Anomalous Return")
+        axes[i].scatter(anomalous_indices, tmp.iloc[anomalous_indices][column_name], color="red", label="Anomalous Return", s=10)
         
         axes[i].set_title(f"Sector: {column_name}")
         axes[i].set_ylabel("Return")
@@ -136,7 +135,7 @@ if __name__ == "__main__":
         axes[i].set_xticks(np.arange(0, len(tmp), 300))
         axes[i].tick_params(axis='x', rotation=45)
 
-    for j in range(len(tmp.columns), 12):
+    for j in range(len(tmp.columns[:11]), 12):
         fig.delaxes(axes[j])
     plt.suptitle('CNN Autoencoder In sample')
     plt.tight_layout()
@@ -169,7 +168,7 @@ if __name__ == "__main__":
     for i, column_name in enumerate(test_df.columns[:11]):
         axes[i].plot(test_df[column_name], label="Return", color="blue", linewidth=0.5) 
         anomalous_indices = anomalous_data_out_sample.get(column_name, [])
-        axes[i].scatter(anomalous_indices, test_df.iloc[anomalous_indices][column_name], color="red", label="Anomalous Return")
+        axes[i].scatter(anomalous_indices, test_df.iloc[anomalous_indices][column_name], color="red", label="Anomalous Return",  s=10)
         
         axes[i].set_title(f"Sector: {column_name}")
         axes[i].set_ylabel("Return")
@@ -178,7 +177,7 @@ if __name__ == "__main__":
         axes[i].set_xticks(np.arange(0, len(test_df), 200))
         axes[i].tick_params(axis='x', rotation=45)
 
-    for j in range(len(test_df.columns), 12):
+    for j in range(len(tmp.columns[:11]), 12):
         fig.delaxes(axes[j])
     plt.suptitle('CNN Autoencoder out sample')
     plt.tight_layout()
