@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import torch 
-from Conv_model import ConvAutoencoder,data_to_tensor
+from cnn.cnn_sectors_ret import ConvAutoencoder,data_to_tensor
 import matplotlib.pyplot as plt 
 
 def cnn_predict(model,data,seq_n):
@@ -21,7 +21,7 @@ def cnn_predict(model,data,seq_n):
 if __name__ == "__main__":
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
-    mid_cap_index = pd.read_csv('index_data/mid_cap_index.csv', index_col='date')
+    mid_cap_index = pd.read_csv('data/mid_cap_index.csv', index_col='date')
     features = ['log_ret']
     ret = mid_cap_index[features] * 100
     n = int(len(ret) * 0.8)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     test_df = ret.iloc[n:]
 
     seq_n = 100
-    model_path = 'model/autoencoder_2024_10_17_conv.pth'
+    model_path = 'models/2024_10_17_cnn1d_univariate.pth'
     model = ConvAutoencoder(in_channels = 1, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
