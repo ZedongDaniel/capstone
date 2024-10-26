@@ -71,7 +71,7 @@ if __name__ == "__main__":
     model = ConvAutoencoder2D(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
-                            kernel_size = (3,7),
+                            kernel_size = (5,7),
                             stride = (1, 1),
                             padding = (1, 1), 
                             dropout_prob=0.1).to(device)

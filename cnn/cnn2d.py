@@ -38,7 +38,7 @@ class ConvAutoencoder2D(nn.Module):
         # Encoder
         self.encoder = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, out_channels=hidden_channels1, kernel_size=kernel_size, stride=stride, padding=padding),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Dropout(dropout_prob),
             nn.Conv2d(in_channels=hidden_channels1, out_channels=hidden_channels2, kernel_size=kernel_size, stride=stride, padding=padding),
             nn.ReLU()
@@ -47,7 +47,7 @@ class ConvAutoencoder2D(nn.Module):
         # Decoder
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(in_channels=hidden_channels2, out_channels=hidden_channels1, kernel_size=kernel_size, stride=stride, padding=padding),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Dropout(dropout_prob),
             nn.ConvTranspose2d(in_channels=hidden_channels1, out_channels=in_channels, kernel_size=kernel_size, stride=stride, padding=padding),
             nn.ReLU()
