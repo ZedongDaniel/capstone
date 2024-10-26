@@ -33,6 +33,7 @@ if __name__ == "__main__":
     input_dim = train_df.shape[1]
     seq_n = 100
     model_path = 'models/2024_10_25_cnn1d_ret.pth'
+    # model_path = 'models/2024_10_21_cnn1d_sectors.pth'
     model = ConvAutoencoder(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,

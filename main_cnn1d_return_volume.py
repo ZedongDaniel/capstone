@@ -75,8 +75,8 @@ if __name__ == "__main__":
 
     y_train_pred, y_train = cnn_predict(model = model,data = train_df_scale ,seq_n = seq_n)
 
-    # print(y_train_pred.shape)
-    # print(y_train.shape)
+    print(y_train_pred.shape)
+    print(y_train.shape)
     # plt.plot(y_train_pred[10][:,1], label = 'pred')
     # plt.plot(y_train[10][:,1], label = 'true')
     # plt.legend()
