@@ -9,3 +9,6 @@ __pycache__/
 
 # Ignore macOS specific file
 .DS_Store
+
+# Ignore all .txt files
+*.txt
