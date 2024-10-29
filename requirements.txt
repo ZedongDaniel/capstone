@@ -2,3 +2,6 @@ streamlit>=1.26.0
 matplotlib
 pandas
 numpy
+eventregistry
+nltk
+wordcloud
