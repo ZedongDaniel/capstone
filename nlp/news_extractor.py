@@ -44,29 +44,3 @@ class SectorNewsExtractor:
         self.sector_keywords[sector_name] = keywords
 
 
-if __name__ == "__main__":
-    api_key = "cfd38812-1b95-4114-b0c0-39efacba95cf"
-    sector_keywords = {
-        "Materials": ["mining", "chemical manufacturing", "raw materials"],
-        "Industrials": ["manufacturing", "industrial equipment", "aerospace"],
-        "Health Care": ["pharmaceuticals", "biotechnology", "health services"],
-        "Real Estate": ["property development", "housing market", "commercial real estate"],
-        "Consumer Discretionary": ["retail", "leisure products", "automobiles"],
-        "Financials": ["banking", "financial services"],
-        "Utilities": ["electricity", "natural gas", "water services"],
-        "Information Technology": ["software", "hardware", "tech services"],
-        "Energy": ["oil", "renewable energy", "gas"],
-        "Consumer Staples": ["food products", "household goods", "beverages"],
-        "Communication Services": ["telecom", "media", "advertising"]
-    }
-
-    news_extractor = SectorNewsExtractor(api_key, sector_keywords, general_keywords=["SP400 Mid Cap", "mid-cap stocks"])
-    news_extractor.fetch_articles(sector_name="Financials", date_start="2024-10-11", date_end="2024-10-11", max_articles=2)
-    articles = news_extractor.get_articles()
-    for article in articles:
-        print("title:", article["title"])
-        print("body:", article["body"])
-        print("source:", article["source"])
-        print("sentiment:", article["sentiment"])
-        print("date:", article["date"])
-        print("-" * 80)

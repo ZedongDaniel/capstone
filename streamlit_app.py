@@ -6,11 +6,15 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from stock_data import StockData
+from dotenv import load_dotenv
+import os
+load_dotenv("api.env")
+api_key = os.getenv("NEWSAPI_KEY")
+print(api_key)
+
 
 st.title('Bloomberg Capstone Project: time series anomaly detection')
 
-api_key = "cfd38812-1b95-4114-b0c0-39efacba95cf"
 sector_keywords = {
     "Materials": ["mining", "chemical manufacturing", "raw materials"],
     "Industrials": ["manufacturing", "industrial equipment", "aerospace"],

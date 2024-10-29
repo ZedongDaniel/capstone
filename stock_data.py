@@ -82,12 +82,5 @@ class StockData:
         return full_data
 
 
-if __name__ == "__main__":  
-    stock = StockData('sp_400_midcap.csv', '662166cb8e3d13.57537943')
-    # df = stock.fetch_stock(ticker = 'AA', period = 'd', start = '2010-01-01', end = '2010-07-01')
-    # df = stock.fetch_stocks_by_sectors(sector='Materials', period = 'd', start = '2010-01-01', end = '2010-07-01')
-    df = stock.fetch_all_stocks(period = 'd', start = '2010-01-01', end = '2010-07-01')
-    print(df.head())
-    print(df.shape)
         
         
