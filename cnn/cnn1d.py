@@ -21,6 +21,24 @@ class CNNDataset(torch.utils.data.Dataset):
     
     def __getitem__(self, index):
         return self.data_list[index]
+    
+class CnnSeqDataset(torch.utils.data.Dataset):
+    def __init__(self, data, selected_features, seq_n):
+        df = data.swaplevel().sort_index().copy()
+        sample_index = df.groupby('sector')[selected_features].shift(seq_n-1).dropna().index.tolist()
+        inputs = df.loc[:, selected_features]
+
+        self.data_list = []
+        for sample in sample_index:
+            data_tensor = data_to_tensor(inputs.loc[:sample].iloc[-seq_n:].T)
+            data_tuple = (data_tensor, data_tensor)
+            self.data_list.append(data_tuple)
+
+    def __len__(self):
+        return len(self.data_list)
+
+    def __getitem__(self, idx):
+        return self.data_list[idx]
 
 class CustomSectorLoss(nn.Module):
     def __init__(self, return_weight=2.0, volume_weight=1.0):
