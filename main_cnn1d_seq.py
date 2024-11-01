@@ -3,6 +3,30 @@ import pandas as pd
 import torch 
 from cnn.cnn1d import ConvAutoencoder,data_to_tensor
 import matplotlib.pyplot as plt 
+import json
+
+def cnn_train_pred(model, data, seq_n, exclude_date_start = '2008-08-01', exclude_date_end ='2009-04-01'):
+    df = data.swaplevel().sort_index().copy()
+    sample_index = df.shift(seq_n-1).dropna().index.tolist()
+
+    data_list = []
+    for sample in sample_index:
+            if pd.to_datetime(exclude_date_start) <= pd.to_datetime(sample[1]) <= pd.to_datetime(exclude_date_end):
+                continue
+            else:
+                data_tensor = data_to_tensor(df.loc[:sample].iloc[-seq_n:].T)
+                data_list.append(data_tensor)
+
+    y_pred = []
+    for X_i in data_list:
+        with torch.no_grad():
+            y_i = model(X_i).detach().cpu().numpy().T
+            y_pred.append(y_i)
+    y_true = [x.cpu().numpy().T for x in data_list]
+
+    return np.array(y_pred), np.array(y_true)
+    
+
 
 def cnn_sector_predict(model, data, seq_n):
     df = data.swaplevel().sort_index().copy()
@@ -81,7 +105,7 @@ if __name__ == "__main__":
 
     unique_dates = df.index.get_level_values('date').unique()
     n = int(len(unique_dates) * 0.8)
-    train_n = int(n * 0.95)
+    train_n = int(n * 0.8)
     tmp_dates = unique_dates[:n]
     train_dates = tmp_dates[:train_n]
     valid_dates = tmp_dates[train_n:]
@@ -95,25 +119,25 @@ if __name__ == "__main__":
     
     input_dim = 1
     seq_n = 100
-    model_path = 'models/2024_10_29_cnn1d_seq.pth'
+    model_path = 'models/2024_1101_cnn1d_seq.pth'
     model = ConvAutoencoder(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
                             kernel_size = 7,
                             stride = 2,
                             padding = 3, 
-                            dropout_prob=0.2).to(device)
+                            dropout_prob=0.1).to(device)
     model.load_state_dict(torch.load(model_path, weights_only=True))
     model.eval()
 
     train_mae_dict = {}
     sector_threshold_dict = {}
     for sector in sectors:
-        sector_df = train_df.loc[(slice(None), sector), :]
+        sector_df = valid_df.loc[(slice(None), sector), :]
         y_train_pred, y_train = cnn_sector_predict(model = model,data = sector_df ,seq_n = seq_n)
         train_mae = np.mean(np.abs(y_train_pred - y_train), axis=1).squeeze()
-        train_mae_dict[sector] = train_mae
-        threshold = np.quantile(train_mae, 0.80, axis=0)
+        train_mae_dict[sector] = train_mae.tolist()
+        threshold = np.quantile(train_mae, 0.95, axis=0)
         sector_threshold_dict[sector] = threshold.item()
 
     # print(y_train_pred.shape)
@@ -124,6 +148,13 @@ if __name__ == "__main__":
     # plt.plot(y_train[89], label = 'true')
     # plt.legend()
     # plt.show()
+    with open("mae.json", "w") as json_file:
+        json.dump(train_mae_dict, json_file, indent=4) 
+
+    with open("sector_threshold.json", "w") as json_file:
+        json.dump(sector_threshold_dict, json_file, indent=4)   
+
+
 
 
     fig, axes = plt.subplots(3, 4, figsize=(15, 10)) 

@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     unique_dates = df.index.get_level_values('date').unique()
     n = int(len(unique_dates) * 0.8)
-    train_n = int(n * 0.95)
+    train_n = int(n * 0.8)
     tmp_dates = unique_dates[:n]
     train_dates = tmp_dates[:train_n]
     valid_dates = tmp_dates[train_n:]
@@ -34,19 +34,19 @@ if __name__ == "__main__":
 
     input_dim = train_df.shape[1]
     seq_n = 100
-    train_dataset = CnnSeqDataset(train_df, ['ret'], seq_n)
-    valid_dataset = CnnSeqDataset(valid_df, ['ret'], seq_n)
+    train_dataset = CnnSeqDataset(train_df, seq_n)
+    valid_dataset = CnnSeqDataset(valid_df, seq_n)
     model = ConvAutoencoder(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
                             kernel_size = 7,
                             stride = 2,
                             padding = 3, 
-                            dropout_prob=0.2).to(device)
+                            dropout_prob=0.1).to(device)
 
     train(
         model = model,
-        batch_size = 32,
+        batch_size = 64,
         train_dataset = train_dataset,
         valid_dataset = valid_dataset,
         num_epochs= 100,
@@ -57,6 +57,6 @@ if __name__ == "__main__":
         verbose = True
     )
 
-    model_path = 'models/2024_10_29_cnn1d_seq.pth'
+    model_path = 'models/2024_1101_cnn1d_seq.pth'
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to {model_path}")

@@ -1,19 +1,12 @@
-from cnn.cnn2d import Cnn2dDataset, ConvAutoencoder2D
-from train_utils import train
 import numpy as np
 import pandas as pd
+import torch 
+from not_for_now.cnn2d import Cnn2dDataset,data_to_tensor, ConvAutoencoder2D
 import matplotlib.pyplot as plt 
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as f
 from sklearn.model_selection import train_test_split
-
 
 if __name__ == "__main__":
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
-    seed = 42
-    torch.manual_seed(seed)
 
     ret = pd.read_csv('data/mid_cap_all_sectors_ret.csv', index_col='date') * 100
     vol = pd.read_csv('data/mid_cap_all_sectors_volume.csv', index_col='date')
@@ -64,35 +57,36 @@ if __name__ == "__main__":
 
     input_dim = 2
     seq_n = 100
-
-    train_dataset = Cnn2dDataset(train_combind, seq_n)
-    valid_dataset = Cnn2dDataset(valid_combind, seq_n)
-
+    model_path = 'models/2024_10_25_cnn2d.pth'
     model = ConvAutoencoder2D(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
-                            kernel_size = (5,7),
+                            kernel_size = (3,7),
                             stride = (1, 1),
                             padding = (1, 1), 
                             dropout_prob=0.1).to(device)
+    model.load_state_dict(torch.load(model_path, weights_only=True))
+    model.eval()
+
+    sample_index = train_combind.shift(seq_n - 1).dropna().index.tolist()
+    data_list = []
+    for sample in sample_index:
+        data_list.append(data_to_tensor(train_combind.loc[:sample].iloc[-seq_n:]))
+
+    y_pred = []
+    for X_i in data_list:
+        with torch.no_grad():
+            y_i = model(X_i).detach().cpu().numpy()[0,:,:].T
+            y_pred.append(y_i)
+    y_pred = np.array(y_pred)
+
+    y_true = np.array([x.cpu().numpy()[0,:,:].T for x in data_list])
+
+    print(y_pred.shape)
+    print(y_true.shape)
+    plt.plot(y_pred[600][:,0], label = 'pred')
+    plt.plot(y_true[600][:,0], label = 'true')
+    plt.legend()
+    plt.show()
+
     
-    train(
-        model = model,
-        batch_size = 32,
-        train_dataset = train_dataset,
-        valid_dataset = valid_dataset,
-        num_epochs= 100,
-        lr = 1e-3,
-        loss_function = nn.MSELoss(),
-        early_stop = False,
-        patience = 10,
-        verbose = True
-    )
-
-    model_path = 'models/2024_10_25_cnn2d.pth'
-    torch.save(model.state_dict(), model_path)
-    print(f"Model saved to {model_path}")
-
-
-
-

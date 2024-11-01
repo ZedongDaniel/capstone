@@ -44,7 +44,7 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(model_path, weights_only=True))
     model.eval()
 
-    y_train_pred, y_train = cnn_predict(model = model,data = train_df,seq_n = seq_n)
+    y_train_pred, y_train = cnn_predict(model = model,data = valid_df,seq_n = seq_n)
     print(y_train_pred.shape)
     print(y_train.shape)
     # plt.plot(y_train_pred[100][:,8], label = 'pred')
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     train_mae = np.mean(np.abs(y_train_pred - y_train), axis=1)
 
-    threshold = np.quantile(train_mae, 0.80, axis=0)
+    threshold = np.quantile(train_mae, 0.99, axis=0)
     print(threshold)
 
     fig, axes = plt.subplots(3, 4, figsize=(15, 10)) 
