@@ -147,7 +147,7 @@ class CnnSeqAutoEncoderModel:
 
 if __name__ == "__main__":
     model = CnnSeqAutoEncoderModel(model_path="CnnModel/cnn1d_seq.pth",
-                        data_path="data_folder/test_data.csv",
+                        data_path="data_folder/log_ret.csv",
                         threshold_dict="CnnModel/threshold.json")
     model.sector_anomalies()
     model.sector_anomalies_index()
