@@ -4,30 +4,39 @@ from nltk.tokenize import word_tokenize
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import streamlit as st
+from nltk.stem import PorterStemmer
+import re
 
 class SectorWordCloud:
     def __init__(self, articles):
         self.articles = articles
-        self.text_data = ""
+        self.corpus = ""
+        self.word_ls = []
 
     def generate_word_cloud(self, sector_name, instreamlit = False):
         self._combine_text()
-        self._tokenize_and_clean()
+        self._tokenize()
         self._visualize(sector_name, instreamlit)
 
     def _combine_text(self):
         for article in self.articles:
-            self.text_data += " " + article.get("body", "").strip()
+            self.corpus = self.corpus + " " +article.get("body", "").strip()
+        self.corpus.strip()
         
-    def _tokenize_and_clean(self):
-        tokens = word_tokenize(self.text_data)
+    def _tokenize(self, use_stemming=True):
         stop_words = set(stopwords.words("english"))
-        cleaned_tokens = [word.lower() for word in tokens if word.isalpha() and word.lower() not in stop_words]
-        
-        self.text_data = " ".join(cleaned_tokens)
+        stemmer = PorterStemmer() if use_stemming else None
+        data = re.sub(r'[^\w\s]', '', self.corpus)
+        data = word_tokenize(data)
+        for word in data:
+            if word.isalpha():
+                processed_word = stemmer.stem(word.lower()) if stemmer else word.lower()
+                if processed_word not in stop_words:
+                    self.word_ls.append(processed_word)
 
     def _visualize(self, sector_name, instreamlit):
-        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(self.text_data)
+        all_text = " ".join(self.word_ls)
+        wordcloud = WordCloud(width=800, height=400, background_color="white").generate(all_text)
         
         fig, ax = plt.subplots(figsize=(10, 5))
         ax.set_title(f"Word Cloud for {sector_name} Sector")
@@ -37,7 +46,7 @@ class SectorWordCloud:
         if instreamlit:
             st.pyplot(fig)
         else:
-            plt.show() 
+            plt.show()
 
 
 

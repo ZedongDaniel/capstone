@@ -1,4 +1,4 @@
-from nlp.news_extractor import SectorNewsExtractor
+from nlp.news_extractor import SectorNewsExtractor, sector_keywords
 from nlp.word_cloud import SectorWordCloud
 
 import streamlit as st
@@ -6,28 +6,13 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from dotenv import load_dotenv
+
 import os
-load_dotenv("api.env")
-api_key = os.getenv("NEWSAPI_KEY")
-print(api_key)
+
 
 
 st.title('Bloomberg Capstone Project: time series anomaly detection')
 
-sector_keywords = {
-    "Materials": ["mining", "chemical manufacturing", "raw materials"],
-    "Industrials": ["manufacturing", "industrial equipment", "aerospace"],
-    "Health Care": ["pharmaceuticals", "biotechnology", "health services"],
-    "Real Estate": ["property development", "housing market", "commercial real estate"],
-    "Consumer Discretionary": ["retail", "leisure products", "automobiles"],
-    "Financials": ["banking", "financial services"],
-    "Utilities": ["electricity", "natural gas", "water services"],
-    "Information Technology": ["software", "hardware", "tech services"],
-    "Energy": ["oil", "renewable energy", "gas"],
-    "Consumer Staples": ["food products", "household goods", "beverages"],
-    "Communication Services": ["telecom", "media", "advertising"]
-}
 
 
 
@@ -71,10 +56,10 @@ with st.expander("View Sector Return"):
 if st.button("Generate Word Cloud"):
     st.write(f"world cloud for : {sector}")
 
-    news_extractor = SectorNewsExtractor(api_key, sector_keywords, general_keywords=["SP400 Mid Cap", "mid-cap stocks"])
-    news_extractor.fetch_articles(sector_name=sector, date_start="2024-10-11", date_end="2024-10-11", max_articles=2)
+    news_extractor = SectorNewsExtractor("4af8dc7c-de0c-4ded-b276-492685db7350", sector_keywords, general_keywords=['mid cap', 's&p 400'])
+    news_extractor.fetch_articles(sector_name=sector, date_start="2022-10-01", date_end="2022-10-30", max_articles=10)
     articles = news_extractor.get_articles()
-
+    st.table(news_extractor.get_summary_table())
     world_cloud = SectorWordCloud(articles)
     world_cloud.generate_word_cloud(sector, instreamlit=True)
 
