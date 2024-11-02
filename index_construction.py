@@ -22,17 +22,17 @@ def equal_index_construction(data: pd.DataFrame):
 
     return index
 
-sectors = list(pd.read_csv('data/sp_400_midcap.csv')['GICS Sector'].unique())
-stock = StockData("data/sp_400_midcap.csv", "662166cb8e3d13.57537943")
+# sectors = list(pd.read_csv('data/sp_400_midcap.csv')['GICS Sector'].unique())
+# stock = StockData("data/sp_400_midcap.csv", "662166cb8e3d13.57537943")
 
-tmp = []
-for sector in sectors:
-    df = stock.fetch_stocks_by_sectors(sector=sector, period='d',  start='2018-01-04', end='2024-08-30')
-    indx = equal_index_construction(df)['log_ret'].rename(sector)
-    tmp.append(indx)
+# tmp = []
+# for sector in sectors:
+#     df = stock.fetch_stocks_by_sectors(sector=sector, period='d',  start='2018-01-04', end='2024-08-30')
+#     indx = equal_index_construction(df)['log_ret'].rename(sector)
+#     tmp.append(indx)
 
-df = pd.concat(tmp, axis=1)
-final = df.loc["2019-09-26":, :]
-final.to_csv('log_ret.csv')
-print(final)
+# df = pd.concat(tmp, axis=1)
+# final = df.loc["2019-09-26":, :]
+# final.to_csv('log_ret.csv')
+# print(final)
 
