@@ -4,6 +4,9 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import os
+from nlp.news_extractor import SectorNewsExtractor, sector_keywords
+from nlp.word_cloud import SectorWordCloud
+
 
 path = "Anomalies Dataset"
 model_list = sorted([x.split('.')[0] for x in next(os.walk(path))[2]])
@@ -37,22 +40,30 @@ st.write(f"Selected Model: {model}")
 st.write(f"Selected Time Range: {start_date} to {end_date}")
 
 anomalies = model_dict[model]
-curr_close = close.loc[start_date:end_date, :]
+
+
+
+curr_ret = ret.loc[start_date:end_date,:]
+curr_anomalies = anomalies.loc[start_date:end_date,:]
 
 fig, axes = plt.subplots(3, 4, figsize=(20, 15), sharex=True, sharey=False)
-fig.suptitle("Sector Closing Prices", fontsize=16)
+fig.suptitle("Sector Return & anomalies", fontsize=16)
 axes = axes.flatten()
 
-for i, sector in enumerate(curr_close.columns):
+for i, sector in enumerate(curr_ret.columns):
     ax = axes[i]
-    sector_data = curr_close[sector]
+    sector_ret = curr_ret[sector]
+    sector_anomalies = curr_anomalies[sector]
+    anomaly_dates = sector_ret[sector_anomalies == 1].index
+    anomaly_values = sector_ret[sector_anomalies == 1].values
     
-    ax.plot(sector_data.index, sector_data.values, label=sector, color='blue')
+    ax.plot(sector_ret.index, sector_ret.values, label=sector, color='blue')
+    ax.scatter(anomaly_dates, anomaly_values, color='red', marker='o', label='Anomaly')
     ax.set_title(sector)
-    ax.set_ylabel("Closing Price")
+    ax.set_ylabel("Return")
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    ax.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
+    ax.tick_params(axis='x', rotation=45) 
     ax.legend()
 
 for j in range(i + 1, len(axes)):
@@ -60,36 +71,26 @@ for j in range(i + 1, len(axes)):
 plt.tight_layout()
 plt.subplots_adjust(top=0.9)
 
-
 st.pyplot(fig)
 
 
+with st.expander("View Close Price"):
+    curr_close = close.loc[start_date:end_date, :]
 
-
-
-# # Streamlit expander for viewing sector return
-with st.expander("View Sector Return"):
-    curr_ret = ret.loc[start_date:end_date,:]
-    curr_anomalies = anomalies.loc[start_date:end_date,:]
-    
     fig, axes = plt.subplots(3, 4, figsize=(20, 15), sharex=True, sharey=False)
-    fig.suptitle("Sector Return & anomalies", fontsize=16)
+    fig.suptitle("Sector Closing Prices", fontsize=16)
     axes = axes.flatten()
 
-    for i, sector in enumerate(curr_ret.columns):
+    for i, sector in enumerate(curr_close.columns):
         ax = axes[i]
-        sector_ret = curr_ret[sector]
-        sector_anomalies = curr_anomalies[sector]
-        anomaly_dates = sector_ret[sector_anomalies == 1].index
-        anomaly_values = sector_ret[sector_anomalies == 1].values
+        sector_data = curr_close[sector]
         
-        ax.plot(sector_ret.index, sector_ret.values, label=sector, color='blue')
-        ax.scatter(anomaly_dates, anomaly_values, color='red', marker='o', label='Anomaly')
+        ax.plot(sector_data.index, sector_data.values, label=sector, color='blue')
         ax.set_title(sector)
-        ax.set_ylabel("Return")
+        ax.set_ylabel("Closing Price")
         ax.xaxis.set_major_locator(mdates.AutoDateLocator())
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        ax.tick_params(axis='x', rotation=45) 
+        ax.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
         ax.legend()
 
     for j in range(i + 1, len(axes)):
@@ -97,5 +98,18 @@ with st.expander("View Sector Return"):
     plt.tight_layout()
     plt.subplots_adjust(top=0.9)
 
+
     st.pyplot(fig)
+
+
+with st.expander("Word Cloud"):
+    if st.button("Generate Word Cloud"):
+        sector = "Financials"
+        st.write(f"world cloud for : {sector}")
+        news_extractor = SectorNewsExtractor("4af8dc7c-de0c-4ded-b276-492685db7350", sector_keywords, general_keywords=['mid cap', 's&p 400'])
+        news_extractor.fetch_articles(sector_name=sector, date_start=start_date, date_end=start_date, max_articles=10)
+        articles = news_extractor.get_articles()
+        st.table(news_extractor.get_summary_table())
+        world_cloud = SectorWordCloud(articles)
+        world_cloud.generate_word_cloud(sector, instreamlit=True)
 
