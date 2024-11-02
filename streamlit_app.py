@@ -3,23 +3,19 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import os
 from nlp.news_extractor import SectorNewsExtractor, sector_keywords
 from nlp.word_cloud import SectorWordCloud
+from stramlit_app_untils import get_model_dict, get_ohlc_dict
 
 
-path = "Anomalies Dataset"
-model_list = sorted([x.split('.')[0] for x in next(os.walk(path))[2]])
-model_dict = {}
-for model in model_list:
-    data = pd.read_csv(f"{path}/{model}.csv", index_col='date')
-    data.index = pd.to_datetime(data.index)
-    model_dict[model] = data
+# load necessary info
+model_dict = get_model_dict()
+model_list = list(model_dict.keys())
+ohlc_dict = get_ohlc_dict()
 
-ret = pd.read_csv('Data/log_ret.csv', index_col='date')
-ret.index = pd.to_datetime(ret.index)
-close =  pd.read_csv('Data/close.csv', index_col='date')
-close.index = pd.to_datetime(close.index)
+ret = ohlc_dict['log_ret']
+close = ohlc_dict['close']
+
 
 
 st.title('Bloomberg Capstone Project: time series anomaly detection')
@@ -40,7 +36,6 @@ st.write(f"Selected Model: {model}")
 st.write(f"Selected Time Range: {start_date} to {end_date}")
 
 anomalies = model_dict[model]
-
 
 
 curr_ret = ret.loc[start_date:end_date,:]
