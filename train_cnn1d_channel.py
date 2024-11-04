@@ -1,4 +1,4 @@
-from cnn.cnn1d import CNNDataset, ConvAutoencoder
+from cnn.cnn1d import CNNChannelDataset, ConvAutoencoder
 from train_utils import train
 import numpy as np
 import pandas as pd
@@ -18,22 +18,21 @@ if __name__ == "__main__":
     mid_cap_index = pd.read_csv('data/mid_cap_all_sectors_ret.csv', index_col='date')
     ret = mid_cap_index * 100
     n = int(len(ret) * 0.8)
-    train_n = int(n * 0.95)
+    train_n = int(n * 0.8)
     tmp = ret.iloc[:n]
     train_df = tmp.iloc[:train_n]
     valid_df = tmp.iloc[train_n:]
 
     input_dim = train_df.shape[1]
     seq_n = 100
-    train_dataset = CNNDataset(train_df, seq_n)
-    valid_dataset = CNNDataset(valid_df, seq_n)
+    train_dataset = CNNChannelDataset(train_df, seq_n)
+    valid_dataset = CNNChannelDataset(valid_df, seq_n)
     model = ConvAutoencoder(in_channels = input_dim, 
                             hidden_channels1 = 32, 
                             hidden_channels2 = 16,
                             kernel_size = 7,
                             stride = 2,
-                            padding = 3, 
-                            dropout_prob=0.2).to(device)
+                            padding = 3).to(device)
 
     train(
         model = model,
@@ -48,6 +47,6 @@ if __name__ == "__main__":
         verbose = True
     )
 
-    model_path = 'models/2024_10_25_cnn1d_sectors.pth'
+    model_path = 'models_repo/2024_11_03_cnn1d_channel.pth'
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to {model_path}")

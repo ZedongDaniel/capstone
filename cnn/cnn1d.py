@@ -7,11 +7,13 @@ def data_to_tensor(data, dtype=torch.float32):
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     return torch.tensor(np.array(data), dtype=dtype).to(device)
 
-class CNNDataset(torch.utils.data.Dataset):
-    def __init__(self, data: pd.Series, seq_n: int) -> None:
+class CNNChannelDataset(torch.utils.data.Dataset):
+    def __init__(self, data: pd.DataFrame, seq_n: int, exclude_date_start = '2008-08-01', exclude_date_end ='2009-04-01') -> None:
         sample_index = data.shift(seq_n-1).dropna().index.tolist()
         self.data_list = []
         for sample in sample_index:
+            if pd.to_datetime(exclude_date_start) <= pd.to_datetime(sample) <= pd.to_datetime(exclude_date_end):
+                continue
             data_tensor = data_to_tensor(data.loc[:sample].iloc[-seq_n:].T)
             data_tuple = (data_tensor, data_tensor)
             self.data_list.append(data_tuple)
@@ -67,7 +69,7 @@ class CustomSectorLoss(nn.Module):
         return total_loss
 
 class ConvAutoencoder(nn.Module):
-    def __init__(self,in_channels, hidden_channels1, hidden_channels2, kernel_size, stride, padding, dropout_prob=0.2):
+    def __init__(self,in_channels, hidden_channels1, hidden_channels2, kernel_size, stride, padding, dropout_prob=0.1):
         super(ConvAutoencoder, self).__init__()
         
         # Encoder
