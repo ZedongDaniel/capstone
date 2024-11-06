@@ -34,13 +34,11 @@ if __name__ == "__main__":
     print((train_df.shape, valid_df.shape, test_df.shape))
     input_dim = train_df.shape[1]
     seq_n = 100
-    model_path = 'models_repo/2024_11_03_cnn1d_channel.pth'
+    model_path = 'models_repo/2024_11_05_cnn1d_channel.pth'
     model = ConvAutoencoder(in_channels = input_dim, 
-                            hidden_channels1 = 32, 
-                            hidden_channels2 = 16,
-                            kernel_size = 7,
-                            stride = 2,
-                            padding = 3).to(device)
+                            hidden_channels1 = 64,
+                            kernel_size = 13,
+                            stride = 2).to(device)
     model.load_state_dict(torch.load(model_path, weights_only=True))
     model.eval()
 
@@ -54,7 +52,7 @@ if __name__ == "__main__":
 
     train_mae = np.mean(np.abs(y_train_pred - y_train), axis=1)
 
-    threshold = np.quantile(train_mae, 0.85, axis=0)
+    threshold = np.quantile(train_mae, 0.95, axis=0)
 
     fig, axes = plt.subplots(3, 4, figsize=(10, 8)) 
     axes = axes.flatten()
