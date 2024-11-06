@@ -7,6 +7,9 @@ import streamlit as st
 from nltk.stem import PorterStemmer
 import re
 
+nltk.download('punkt_tab')
+nltk.download("stopwords")
+
 class SectorWordCloud:
     def __init__(self, articles, stop_word_path = "nlp/stopwords.txt"):
         self.articles = articles
