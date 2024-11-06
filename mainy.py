@@ -37,24 +37,24 @@ if __name__ == "__main__":
     seq_n = 20
     model_path = 'models_repo/2024_11_06_cnn1d_channel.pth'
     model = ConvAutoencoder(in_channels = input_dim, 
-                            hidden_channels1 = 32,
-                            activation_func=nn.LeakyReLU(),
-                            kernel_size = 5,
+                            hidden_channels1 = 64,
+                            activation_func=nn.Tanh(),
+                            kernel_size = 3,
                             stride = 2).to(device)
     model.load_state_dict(torch.load(model_path, weights_only=True))
     model.eval()
 
     y_train_pred, y_train = cnn_predict(model = model,data = valid_df,seq_n = seq_n)
-    # print(y_train_pred.shape)
-    # print(y_train.shape)
-    # plt.plot(y_train_pred[100][:,0], label = 'pred')
-    # plt.plot(y_train[100][:,0], label = 'true')
-    # plt.legend()
-    # plt.show()
+    print(y_train_pred.shape)
+    print(y_train.shape)
+    plt.plot(y_train_pred[100][:,0], label = 'pred')
+    plt.plot(y_train[100][:,0], label = 'true')
+    plt.legend()
+    plt.show()
 
     train_mae = np.mean(np.abs(y_train_pred - y_train), axis=1)
 
-    threshold = np.quantile(train_mae, 0.95, axis=0)
+    threshold = np.quantile(train_mae, 0.90, axis=0)
 
     fig, axes = plt.subplots(3, 4, figsize=(10, 8)) 
     axes = axes.flatten()
@@ -116,6 +116,12 @@ if __name__ == "__main__":
     plt.suptitle('CNN Autoencoder out sample')
     plt.tight_layout()
     plt.show()
+
+    output = pd.DataFrame(0, index= test_df.index, columns= test_df.columns)
+    for sector, indices in anomalous_data_out_sample.items():
+            output.iloc[indices, output.columns.get_loc(sector)] = 1
+    print(output)
+    output.to_csv('cnn_channel.csv')
 
 
 

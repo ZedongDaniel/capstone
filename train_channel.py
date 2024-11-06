@@ -28,9 +28,9 @@ if __name__ == "__main__":
     train_dataset = CNNChannelDataset(train_df, seq_n)
     valid_dataset = CNNChannelDataset(valid_df, seq_n)
     model = ConvAutoencoder(in_channels = input_dim, 
-                            hidden_channels1 = 32,
-                            activation_func=nn.LeakyReLU(),
-                            kernel_size = 5,
+                            hidden_channels1 = 64,
+                            activation_func=nn.Tanh(),
+                            kernel_size = 3,
                             stride = 2).to(device)
 
     train(
@@ -48,6 +48,6 @@ if __name__ == "__main__":
 
     
 
-    # model_path = 'models_repo/2024_11_06_cnn1d_channel.pth'
-    # torch.save(model.state_dict(), model_path)
-    # print(f"Model saved to {model_path}")
+    model_path = 'models_repo/2024_11_06_cnn1d_channel.pth'
+    torch.save(model.state_dict(), model_path)
+    print(f"Model saved to {model_path}")
