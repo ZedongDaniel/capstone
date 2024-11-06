@@ -8,10 +8,12 @@ from nltk.stem import PorterStemmer
 import re
 
 class SectorWordCloud:
-    def __init__(self, articles):
+    def __init__(self, articles, stop_word_path = "nlp/stopwords.txt"):
         self.articles = articles
         self.corpus = ""
         self.word_ls = []
+        with open(stop_word_path, "r") as file:
+            self.stopwords = [line.strip() for line in file]
 
     def generate_word_cloud(self, sector_name, instreamlit = False):
         self._combine_text()
@@ -24,7 +26,7 @@ class SectorWordCloud:
         self.corpus.strip()
         
     def _tokenize(self, use_stemming=True):
-        stop_words = set(stopwords.words("english"))
+        stop_words = set(self.stopwords)
         stemmer = PorterStemmer() if use_stemming else None
         data = re.sub(r'[^\w\s]', '', self.corpus)
         data = word_tokenize(data)
