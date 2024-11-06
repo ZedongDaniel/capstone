@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import torch 
+import torch.nn as nn
 from cnn.cnn1d import ConvAutoencoder,data_to_tensor
 import matplotlib.pyplot as plt 
 
@@ -33,11 +34,12 @@ if __name__ == "__main__":
 
     print((train_df.shape, valid_df.shape, test_df.shape))
     input_dim = train_df.shape[1]
-    seq_n = 100
-    model_path = 'models_repo/2024_11_05_cnn1d_channel.pth'
+    seq_n = 20
+    model_path = 'models_repo/2024_11_06_cnn1d_channel.pth'
     model = ConvAutoencoder(in_channels = input_dim, 
-                            hidden_channels1 = 64,
-                            kernel_size = 13,
+                            hidden_channels1 = 32,
+                            activation_func=nn.LeakyReLU(),
+                            kernel_size = 5,
                             stride = 2).to(device)
     model.load_state_dict(torch.load(model_path, weights_only=True))
     model.eval()

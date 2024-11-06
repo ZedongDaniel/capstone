@@ -103,3 +103,16 @@ class ConvAutoencoder(nn.Module):
         x = self.decoder(x)
         return x
     
+
+# # Define an example input tensor with shape (batch_size, in_channels, sequence_length)
+# batch_size = 32  # You can set the batch size as needed
+# sequence_length = 20  # Length of the input sequence
+# x = torch.randn(batch_size, 11, sequence_length)  # Example input for testing
+
+# # Instantiate the model
+# model = ConvAutoencoder(11, 32, 3, nn.LeakyReLU(), stride=2)
+
+# # Forward pass
+# output = model(x)
+# print("Output shape:", output.shape)
+    
