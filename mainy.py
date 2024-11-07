@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     train_mae = np.mean(np.abs(y_train_pred - y_train), axis=1)
 
-    threshold = np.quantile(train_mae, 0.90, axis=0)
+    threshold = np.quantile(train_mae, 0.87, axis=0)
 
     fig, axes = plt.subplots(3, 4, figsize=(10, 8)) 
     axes = axes.flatten()
