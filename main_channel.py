@@ -101,4 +101,10 @@ if __name__ == "__main__":
     plt.suptitle('CNN Autoencoder out sample')
     plt.tight_layout()
     plt.show()
+    
+    output = pd.DataFrame(0, index=test_df.index, columns=test_df.columns)
+    for sector in anomalies_index.keys():
+        index = anomalies_index[sector]
+        output.iloc[index, output.columns.get_loc(sector)] = 1
 
+    output.to_csv('cnn.csv')
