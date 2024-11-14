@@ -87,6 +87,6 @@ if __name__ == "__main__":
     detector.load_data('../test_data.csv')
     detector.compute_mae()
     detector.detect_anomalies(0.75)
-    output = detector.generate_anomalies_index_dataframe(save_csv=True)
+    output = detector.generate_anomalies_index_dataframe(save_csv=False)
     detector.plot()
     print(output)
