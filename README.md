@@ -4,7 +4,7 @@ Description of the app
 
 ## App Link
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://capstone-groupcharlie.streamlit.app/)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://capstone-gd8jubadtengqobjob3eer.streamlit.app/)
 
 ## GitHub Codespaces
 
