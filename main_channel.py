@@ -53,7 +53,8 @@ if __name__ == "__main__":
     insample_vol_threshold = calc_vol_thershold(vol_df=vol_df, low=0.3, high=0.7)
     insampe_regimes = vol_regimes(vol_df=vol_df, vol_thershold=insample_vol_threshold)
     dynamic_thresholds = compute_dynamic_thresholds(scores_df = mae_df, regimes_df = insampe_regimes, score_threshold=0.95)
-    # dynamic_thresholds_df = pd.DataFrame.from_dict(dynamic_thresholds, orient='index').T
+    dynamic_thresholds_df = pd.DataFrame.from_dict(dynamic_thresholds, orient='index').T
+    print(dynamic_thresholds_df)
 
 
     y_out_sample_pred, y_out_sample = cnn_predict(model = model,data = test_df, seq_n = seq_n)

@@ -5,6 +5,8 @@ def compute_rolling_vol(data: pd.DataFrame, window_size: int=20):
     vol_df = data.rolling(window=window_size).std().dropna()
     return vol_df
 
+
+
 def calc_vol_thershold(vol_df: pd.DataFrame, low: float = 0.3, high: float = 0.7):
     thresholds_vol = {}
 
