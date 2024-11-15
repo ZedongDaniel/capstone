@@ -1,14 +1,13 @@
 import streamlit as st
-import pandas as pd
+import time
+import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from nlp.news_extractor import SectorNewsExtractor, sector_keywords
-from nlp.word_cloud import SectorWordCloud
 from stramlit_app_untils import get_model_dict, get_ohlc_dict
 
 
-# load necessary info
+### load necessary info
 model_dict = get_model_dict()
 model_list = list(model_dict.keys())
 ohlc_dict = get_ohlc_dict()
@@ -16,9 +15,24 @@ ohlc_dict = get_ohlc_dict()
 ret = ohlc_dict['log_ret']
 close = ohlc_dict['close']
 
+sectors = ret.columns
+###
 
+st.set_page_config(page_title="1_Model2Sectors", page_icon="📈")
+st.markdown("""
+# Return Anomaly Detection on S&P 400 Mid Cap Sectors
 
-st.title('Bloomberg Capstone Project: time series anomaly detection')
+Welcome to the Return Anomaly Detection tool designed for all sectors of the S&P 400 Mid Cap index. This interactive webpage allows you to identify and analyze anomalies in sector returns using state-of-the-art machine learning models. 
+
+### What You Can Do:
+- **Choose Your Model**: Select from a variety of pre-trained models to suit your analysis needs.
+- **Set Your Timeframe**: Define a start and end date to focus on the period of interest for your anomaly detection.
+- **Visualize Sector Returns**: Examine how each sector performed over time and identify anomalies, marked prominently on the charts.
+- **Explore Closing Prices**: Dive deeper into sector performance with detailed plots of closing prices.
+
+This tool provides a powerful way to uncover patterns and irregularities in market data, aiding better decision-making and deeper insights.
+""")
+
 
 with st.sidebar:
     st.header("Input information")
@@ -31,21 +45,21 @@ with st.sidebar:
     if start_date >= end_date:
         st.error("End date must be after start date")
 
-
-st.write(f"Selected Model: {model}")
+st.write("\n\n")
+st.write(f"\n Selected Model: {model} return anomaly detector")
 st.write(f"Selected Time Range: {start_date} to {end_date}")
 
+
 anomalies = model_dict[model]
-
-
 curr_ret = ret.loc[start_date:end_date,:]
 curr_anomalies = anomalies.loc[start_date:end_date,:]
+
 
 fig, axes = plt.subplots(3, 4, figsize=(20, 15), sharex=True, sharey=False)
 fig.suptitle("Sector Return & anomalies", fontsize=16)
 axes = axes.flatten()
 
-for i, sector in enumerate(curr_ret.columns):
+for i, sector in enumerate(sectors):
     ax = axes[i]
     sector_ret = curr_ret[sector]
     sector_anomalies = curr_anomalies[sector]
@@ -85,7 +99,7 @@ with st.expander("View Close Price"):
         ax.set_ylabel("Closing Price")
         ax.xaxis.set_major_locator(mdates.AutoDateLocator())
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        ax.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
+        ax.tick_params(axis='x', rotation=45)
         ax.legend()
 
     for j in range(i + 1, len(axes)):
@@ -95,16 +109,3 @@ with st.expander("View Close Price"):
 
 
     st.pyplot(fig)
-
-
-with st.expander("Word Cloud"):
-    if st.button("Generate Word Cloud"):
-        sector = "Financials"
-        st.write(f"world cloud for : {sector}")
-        news_extractor = SectorNewsExtractor("4af8dc7c-de0c-4ded-b276-492685db7350", sector_keywords, general_keywords=['mid cap', 's&p 400'])
-        news_extractor.fetch_articles(sector_name=sector, date_start=start_date, date_end=start_date, max_articles=10)
-        articles = news_extractor.get_articles()
-        st.table(news_extractor.get_summary_table())
-        world_cloud = SectorWordCloud(articles)
-        world_cloud.generate_word_cloud(sector, instreamlit=True)
-
