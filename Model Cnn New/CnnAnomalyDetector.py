@@ -86,7 +86,9 @@ if __name__ == "__main__":
     detector = CnnAnomalyDetector(model=model, threshold_config = 'threshold_config.json')
     detector.load_data('../test_data.csv')
     detector.compute_mae()
-    detector.detect_anomalies(0.75)
-    output = detector.generate_anomalies_index_dataframe(save_csv=False)
+    detector.detect_anomalies(0.95)
+    output = detector.generate_anomalies_index_dataframe(save_csv=True)
+
+    for setor in output.columns:
+        print(output.loc[:, setor].sum())
     detector.plot()
-    print(output)
