@@ -58,6 +58,7 @@ def detect_anomalies_sample(scores_df: pd.DataFrame, regimes_df: pd.DataFrame, d
         for regime in ['low', 'medium', 'high']:
             indices = regimes_df[sector] == regime
             threshold = dynamic_thresholds[sector][regime]
+
             anomalies.iloc[indices, anomalies.columns.get_loc(sector)] = (setor_score[indices] > threshold).astype(bool)
 
     return anomalies

@@ -65,7 +65,7 @@ if __name__ == "__main__":
     outsampe_regimes = vol_regimes(vol_df=outsample_vol_df, vol_thershold=insample_vol_threshold)
 
     anomalies_sample = detect_anomalies_sample(scores_df = out_sample_mae_df, regimes_df = outsampe_regimes, dynamic_thresholds=dynamic_thresholds)
-    anomalies_index = detect_anomalies_index(data=test_df, anomalies_df = anomalies_sample, seq_n=20, weight_on_seq=0.75)
+    anomalies_index = detect_anomalies_index(data=test_df, anomalies_df = anomalies_sample, seq_n=20, weight_on_seq=0.90)
 
     fig, axes = plt.subplots(3, 4, figsize=(10, 8), sharex=True) 
     axes = axes.flatten()
@@ -86,6 +86,17 @@ if __name__ == "__main__":
     plt.suptitle('CNN Autoencoder out sample')
     plt.tight_layout()
     plt.show()
+
+
+    output = pd.DataFrame(0, index=test_df.index, columns=test_df.columns)
+
+    for sector in anomalies_index.keys():
+        index = anomalies_index[sector]
+        output.iloc[index, output.columns.get_loc(sector)] = 1
+
+    output.to_csv('cnn.csv')
+    # for sector in output.columns:
+    #     print(f"{sector} count : {output.loc[:, sector].sum()}")
     
 
 
