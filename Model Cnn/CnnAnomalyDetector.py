@@ -87,8 +87,8 @@ if __name__ == "__main__":
     detector.load_data('../test_data.csv')
     detector.compute_mae()
     detector.detect_anomalies(0.95)
-    output = detector.generate_anomalies_index_dataframe(save_csv=True)
+    output = detector.generate_anomalies_index_dataframe(save_csv=False)
 
     for setor in output.columns:
-        print(output.loc[:, setor].sum())
+        print(f"{setor} count: {output.loc[:, setor].sum()}")
     detector.plot()
