@@ -7,7 +7,10 @@ import os
 # from nlp.news_extractor import SectorNewsExtractor, sector_keywords
 # from nlp.word_cloud import SectorWordCloud
 
-
+def drawdown(s):
+    running_max = s.cummax()
+    dd = (s - running_max) / running_max
+    return dd
 
 def get_model_dict() -> dict:
     path = "Anomalies Dataset"
@@ -49,6 +52,11 @@ def load_sector_return(data_path, sector):
     return output
 
 
+def load_sector_drawdown(data_path, sector):
+    log_return = pd.read_csv(f"{data_path}/log_ret.csv", index_col='date')
+    log_return.index = pd.to_datetime(log_return.index)
+    dd = drawdown(log_return.loc[:, sector])
+    return dd
 
         
 

@@ -6,7 +6,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from stramlit_app_untils import load_sector_anomalies, load_sector_return
+from stramlit_app_untils import load_sector_anomalies, load_sector_return, load_sector_drawdown
 
 st.set_page_config(page_title="2_Sector2Models", page_icon="📈")
 
@@ -27,18 +27,24 @@ with st.sidebar:
 
 log_ret = load_sector_return(data_path="Data", sector=sector) * 100
 anomalies = load_sector_anomalies(data_path="Anomalies Dataset", sector=sector)
+dd = load_sector_drawdown(data_path="Data", sector = sector) 
+
+fig, ax = plt.subplots(figsize=(20, 15))
+ax.plot(dd.index, dd.values, color='red',linewidth=0.5)
+st.pyplot(fig)
 
 curr_ret = log_ret.loc[start_date:end_date]
 curr_anomalies = anomalies.loc[start_date:end_date, :]
+curr_drawdown = dd.loc[start_date:end_date]
 
-st.write("placeholder")
+# fig, ax = plt.subplots(figsize=(20, 15))
+# ax.plot(curr_drawdown.index, curr_drawdown.values, color='red',linewidth=0.5)
+# st.pyplot(fig)
 
 fig, ax = plt.subplots(figsize=(20, 15))
 ax.plot(curr_ret.index, curr_ret.values, color='blue',linewidth=0.5)
 offsets = [-0.5, 0, 0.5, -1.0, 1.0, -1.5, 1.5]  # Adjust as needed for more models
-
 for i, model in enumerate(curr_anomalies.columns):
-
     model_anomaly = curr_anomalies.loc[:, model]
     model_anomaly_dates = model_anomaly[model_anomaly == 1].index
     model_anomaly_values =  curr_ret.loc[model_anomaly == 1].values
@@ -48,7 +54,6 @@ for i, model in enumerate(curr_anomalies.columns):
     ax.scatter(model_anomaly_dates, anomaly_display_values, label=model, s=20)
     ax.legend()
 st.pyplot(fig)
-
 
 fig, axes = plt.subplots(7, 1, figsize=(12, 20), sharex=True, sharey=True)
 axes = axes.flatten()
