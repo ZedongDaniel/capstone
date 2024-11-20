@@ -18,7 +18,7 @@ close = ohlc_dict['close']
 sectors = ret.columns
 ###
 
-st.set_page_config(page_title="1_Model2Sectors", page_icon="📈")
+st.set_page_config(page_title="Sector Wide Model Performance ")
 st.markdown("""
 # Return Anomaly Detection on S&P 400 Mid Cap Sectors
 

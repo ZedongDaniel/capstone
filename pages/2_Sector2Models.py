@@ -4,11 +4,12 @@ import sys
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+import numpy as np
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from stramlit_app_untils import load_sector_anomalies, load_sector_return, load_sector_drawdown
 
-st.set_page_config(page_title="2_Sector2Models", page_icon="📈")
+st.set_page_config(page_title="Models Performacne on Specific Sector")
 
 sectors = ['Materials', 'Industrials', 'Health Care', 'Real Estate', 'Consumer Discretionary', 'Financials', 
                'Utilities', 'Information Technology', 'Energy', 'Consumer Staples', 'Communication Services']
@@ -25,25 +26,24 @@ with st.sidebar:
     if start_date >= end_date:
         st.error("End date must be after start date")
 
-log_ret = load_sector_return(data_path="Data", sector=sector) * 100
+log_ret = np.exp((load_sector_return(data_path="Data", sector=sector)).cumsum()) * 100
 anomalies = load_sector_anomalies(data_path="Anomalies Dataset", sector=sector)
 dd = load_sector_drawdown(data_path="Data", sector = sector) 
 
-fig, ax = plt.subplots(figsize=(20, 15))
-ax.plot(dd.index, dd.values, color='red',linewidth=0.5)
-st.pyplot(fig)
 
 curr_ret = log_ret.loc[start_date:end_date]
 curr_anomalies = anomalies.loc[start_date:end_date, :]
 curr_drawdown = dd.loc[start_date:end_date]
 
-# fig, ax = plt.subplots(figsize=(20, 15))
-# ax.plot(curr_drawdown.index, curr_drawdown.values, color='red',linewidth=0.5)
-# st.pyplot(fig)
+fig, ax = plt.subplots(figsize=(20, 15))
+ax.plot(curr_drawdown.index, curr_drawdown.values, color='red',linewidth=0.5)
+ax.set_title(f"drawdown for {sector}")
+st.pyplot(fig)
 
 fig, ax = plt.subplots(figsize=(20, 15))
 ax.plot(curr_ret.index, curr_ret.values, color='blue',linewidth=0.5)
-offsets = [-0.5, 0, 0.5, -1.0, 1.0, -1.5, 1.5]  # Adjust as needed for more models
+ax.set_title(f"cumulative return for {sector}")
+offsets = [-2, -1, 0, 1, 2, 3 ]  # Adjust as needed for more models
 for i, model in enumerate(curr_anomalies.columns):
     model_anomaly = curr_anomalies.loc[:, model]
     model_anomaly_dates = model_anomaly[model_anomaly == 1].index
@@ -55,7 +55,7 @@ for i, model in enumerate(curr_anomalies.columns):
     ax.legend()
 st.pyplot(fig)
 
-fig, axes = plt.subplots(7, 1, figsize=(12, 20), sharex=True, sharey=True)
+fig, axes = plt.subplots(6, 1, figsize=(12, 20), sharex=True, sharey=True)
 axes = axes.flatten()
 for i, model in enumerate(curr_anomalies.columns):
     ax = axes[i]    
