@@ -76,14 +76,14 @@ def detect_anomalies_index(data: pd.DataFrame, anomalies_df: pd.DataFrame, seq_n
 
 
 # test data index 0, 1, 2, 3, ..., 20, ..., 80 .., 100
-# am data index 0 : include test data index [x, y)
-# am data index 0 : 0-20
-# am data index 1 : 1-21
-# am data index 2 : 2-22
+# anomalies data index 0 : include test data index [x, y)
+# anomalies data index 0 : 0-20
+# anomalies data index 1 : 1-21
+# anomalies data index 2 : 2-22
 # ...
-# am data index 20 : 20-40
+# anomalies data index 20 : 20-40
 # ...
-# am data index 60 : 60-80
-# am data index 61 : 61-81
+# anomalies data index 60 : 60-80
+# anomalies data index 61 : 61-81
 
-# am data index 80 : 80-100
+# anomalies data index 80 : 80-100
