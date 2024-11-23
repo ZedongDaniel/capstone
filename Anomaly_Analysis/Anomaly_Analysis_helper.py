@@ -151,11 +151,13 @@ def anomalies_consensus(anomaly_dir, model_list, plot = False, log_return = test
         anomaly_sum_sector = anomaly_flat_sector.sum(axis=1)
         sector_anomaly_consensus[sector] = (anomaly_sum_sector > (len(model_list) - 1)).astype(int)
         sector_anomaly_consensus = pd.DataFrame(sector_anomaly_consensus)
+
+    model_name = '+'.join(model_list)
     
     if plot:
         anomaly_cons_dict = {}
-        anomaly_cons_dict[0] = sector_anomaly_consensus
-        plot_anomalies(anomaly_cons_dict, 0)
+        anomaly_cons_dict[model_name] = sector_anomaly_consensus
+        plot_anomalies(anomaly_cons_dict, model_name)
 
     return sector_anomaly_consensus
 
@@ -179,8 +181,8 @@ def majority_anomalies_consensus(anomaly_dir, consensus_threshold = 4, plot = Fa
 
     if plot:
         anomaly_cons_dict = {}
-        anomaly_cons_dict[0] = majority_anomaly_consensus
-        plot_anomalies(anomaly_cons_dict, 0)
+        anomaly_cons_dict['Majority Consensus'] = majority_anomaly_consensus
+        plot_anomalies(anomaly_cons_dict, 'Majority Consensus')
 
     return majority_anomaly_consensus
 
