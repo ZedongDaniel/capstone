@@ -60,7 +60,7 @@ def plot_anomalies(anomaly_dir, model_name, log_returns = test_data):
     anomaly_df = anomaly_dir[model_name]
 
     fig, axes = plt.subplots(4, 3, figsize=(16, 10))
-    fig.suptitle('Consensus Anomaly by Majority Models by Sectors')
+    fig.suptitle(f'Anomalies by Sectors ({model_name})')
     fig.tight_layout(pad=3.0)
 
     for i, sector in enumerate(anomaly_df.columns):
