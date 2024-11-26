@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from itertools import combinations
 
-test_data = pd.read_csv('test_set.csv', parse_dates=['date'])
+test_data = pd.read_csv('test_data.csv', parse_dates=['date'])
 test_data.set_index('date', inplace=True)
 
 def __get_models(anomaly_dir):
