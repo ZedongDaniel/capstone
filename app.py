@@ -59,7 +59,9 @@ Placeholder
 Placeholder    
             
 ##### Isolation forest
-Placeholder         
+The Isolation Forest model leverages a robust ensemble of binary trees to identify anomalies based on their rarity and distinctiveness in the data.
+It isolates data points through recursive partitioning, with anomalies requiring fewer splits and resulting in shorter path lengths.
+During inference, the model computes anomaly scores for unseen sector returns, dynamically adjusting thresholds based on volatility regimes.
             
 ##### Mahalanobis distance
 Placeholder
