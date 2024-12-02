@@ -14,6 +14,31 @@ st.set_page_config(page_title="Models Performacne on Specific Sector")
 sectors = ['Materials', 'Industrials', 'Health Care', 'Real Estate', 'Consumer Discretionary', 'Financials', 
                'Utilities', 'Information Technology', 'Energy', 'Consumer Staples', 'Communication Services']
 
+st.markdown("""
+## Models on Sector: Anomaly Analysis by Sector and Date Range
+
+This page allows you to explore anomalies flagged by the six models for a selected sector and within a user-defined date range. Through visualizations and insights, this section provides a deeper understanding of sector-specific return behavior and anomaly patterns.
+
+### Visualizations:
+
+#### 1. Sector Drawdown:
+The first plot displays the **drawdown** for the selected sector's returns.
+
+#### 2. Cumulative Return with Anomaly Markers:
+The next plot shows the **cumulative return** for the sector's returns over time.
+- **Six colored markers** are overlaid on the cumulative return time series, corresponding to the anomalies flagged by each model.
+- **Insight**: Pay attention to regions where the colored markers cluster together, as this may indicate significant anomaly consensus among the models.
+
+#### 3. Anomaly Indicators by Model:
+A subplot presents the **anomaly indicators** for all six models:
+  - **X-axis**: Time.
+  - **Y-axis**: Binary indicator (0 or 1), where 1 represents an anomaly detected at a given date.
+Each plot corresponds to one model, providing a clear timeline of anomalies flagged.
+
+### User Interaction:
+- **Sector Selection**: Choose a sector to focus the analysis on.
+- **Date Range Customization**: Define the start and end dates to tailor the visualizations to your desired time window.
+""")
 
 with st.sidebar:
     st.header("Input information")

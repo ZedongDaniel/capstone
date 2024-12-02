@@ -1,12 +1,34 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from datetime import datetime
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import os
-# from nlp.news_extractor import SectorNewsExtractor, sector_keywords
-# from nlp.word_cloud import SectorWordCloud
+
+
+def format_anomaly_periods(anomaly_periods, instreamlit=False):
+    """
+    Formats a list of anomaly periods and optionally displays it in Streamlit.
+
+    Parameters:
+    - anomaly_periods: list of tuples
+        List of (start_date, end_date) tuples representing anomaly periods.
+    - instreamlit: bool
+        If True, display the formatted periods in a Streamlit app.
+
+    Returns:
+    - formatted_df: DataFrame
+        A DataFrame containing the formatted anomaly periods.
+    """
+    # Create a DataFrame for better presentation
+    formatted_df = pd.DataFrame(anomaly_periods, columns=["Start Date", "End Date"])
+    formatted_df["Start Date"] = formatted_df["Start Date"].dt.strftime("%Y-%m-%d")
+    formatted_df["End Date"] = formatted_df["End Date"].dt.strftime("%Y-%m-%d")
+
+    # Optionally display in Streamlit
+    if instreamlit:
+        st.table(formatted_df)
+
+    return formatted_df
+
 
 def drawdown(s):
     running_max = s.cummax()
