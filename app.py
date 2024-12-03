@@ -53,7 +53,8 @@ During inference, it processes unseen sector returns, reconstructs the data, and
 This dynamic thresholding adapts to different market conditions, enhancing anomaly detection.
 
 ##### Dynamic Thresholding LSTM Autoencoder     
-Placeholder
+The LSTM-Dynamic model utilizes stacked LSTM layers in both the encoder and decoder to reconstruct 15-day return sequences by minimizing MAE loss. 
+Similar to CNN Autoencoder, dynamic threshold technique is implemented for robust anomaly detection adjusted for different market conditions. 
             
 ##### K-nearest neighbors
 Placeholder    
