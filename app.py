@@ -67,7 +67,9 @@ During inference, the model computes anomaly scores for unseen sector returns, d
 Placeholder
             
 ##### Statistics   
-Placeholder
+The main idea of the model is that given the current segment, if the new incoming point is from the same distribution, 
+the likelihood function ideally should be maximized under the new estimated distribution parameter. 
+The length of our window increases until a change point is detected. 
 
 Please go to the **ModelComparison** page for a detailed quantitative comparison between models for anomaly flags across different sectors.
 """)
