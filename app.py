@@ -57,7 +57,11 @@ The LSTM-Dynamic model utilizes stacked LSTM layers in both the encoder and deco
 Similar to CNN Autoencoder, dynamic threshold technique is implemented for robust anomaly detection adjusted for different market conditions. 
             
 ##### K-nearest neighbors
-Placeholder    
+The model implements dynamic KNN outlier detection on the log returns of each sector, where the number of k is adjusted based on sector volatility. 
+Sectors with higher volatility use a larger k, enhancing the model's flexibility to adapt to varying characteristics. 
+Additionally, rolling standard deviation is calculated over a defined window to measure each sector's volatility over time. 
+This rolling volatility influences both k and a dynamic threshold for outlier detection, enabling the model to identify outlier relative to recent volatility and adapt to changing market conditions.
+
             
 ##### Isolation forest
 The Isolation Forest model leverages a robust ensemble of binary trees to identify anomalies based on their rarity and distinctiveness in the data.
