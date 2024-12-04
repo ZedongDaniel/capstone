@@ -96,7 +96,7 @@ class CnnChannelAutoEncoder:
 
 if __name__ == "__main__":
     m = CnnChannelAutoEncoder('2024_11_06_cnn1d_channel.pth')
-    data = pd.read_csv("../test_data.csv", index_col='date') * 100
+    data = pd.read_csv("../Data/log_ret.csv", index_col='date') * 100
     y_pred, y_true = m.predict(data, output_ground_truth=True)
 
     plt.plot(y_pred[60][:, 7], label = 'pred')
@@ -105,4 +105,37 @@ if __name__ == "__main__":
     plt.show()
 
     print(m)
+
+    layerwise_params = {}
+    for name, param in m.model.named_parameters():
+        layer_name = ".".join(name.split(".")[:-1])  # Get layer name (excluding weight/bias)
+        if layer_name not in layerwise_params:
+            layerwise_params[layer_name] = 0
+        layerwise_params[layer_name] += param.numel()
+
+    # Display the total parameters for each layer
+    print("Layer-wise Total Parameters:")
+    for layer, total_params in layerwise_params.items():
+        print(f"Layer: {layer} | Total Parameters: {total_params}")
+
+
+    # Register hooks to capture output shapes
+    output_shapes = {}
+
+    def hook_fn(module, input, output):
+        output_shapes[module] = output.shape
+
+    # Attach hooks to all layers
+    for layer in m.model.modules():
+        if isinstance(layer, (nn.Conv1d, nn.ConvTranspose1d, nn.Dropout, nn.Tanh)):
+            layer.register_forward_hook(hook_fn)
+
+    # Pass a sample input tensor through the model
+    sample_input = torch.randn(1, 11, 20) 
+    m.model(sample_input)
+
+    # Display the output shapes
+    print("Layer-wise Output Shapes:")
+    for layer, shape in output_shapes.items():
+        print(f"Layer: {layer.__class__.__name__} | Output Shape: {shape}")
 
