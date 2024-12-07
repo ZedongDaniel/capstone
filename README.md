@@ -89,12 +89,14 @@ Streamlit app pages:
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-repo/anomaly-detection.git
+   ```
 
 2.	Navigate to the repository directory:
    ```bash
    cd anomaly-detection
-
+   ```
 3.	Install dependencies:
    ```bash
    pip install -r requirements.txt
+   ```
 
