@@ -6,17 +6,93 @@ Description of the app
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://capstone-groupcharlie.streamlit.app/)
 
-## GitHub Codespaces
+## Repository Structure
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/app-starter-kit?quickstart=1)
+### 1. **Anomalies Dataset**
+Contains CSV files with anomaly detection results from various models:
+- `KNN.csv`: Results from KNN-based anomaly detection.
+- `cnn_dynamic.csv`: Results from CNN-based dynamic detection.
+- `isolation_forest.csv`: Results from Isolation Forest.
+- `lstm_dynamic.csv`: Results from LSTM dynamic thresholds.
+- `mahalanobis_distance.csv`: Results using Mahalanobis distance.
+- `statistics.csv`: Statistical anomaly detection results.
 
-## Section Heading
+### 2. **Anomaly_Analysis**
+Scripts and notebooks for anomaly analysis:
+- `Anomalies_Analysis.ipynb`: Jupyter notebook for detailed anomaly analysis.
+- `Anomaly_Analysis_helper.py`: Helper functions for anomaly analysis.
+- `test_data.csv`: Sample dataset for testing.
 
-This is filler text, please replace this with text for this section.
+### 3. **Data**
+Raw and processed financial data:
+- `adjusted_close.csv`, `close.csv`, `high.csv`, `low.csv`, `open.csv`, `volume.csv`: Financial time series data.
+- `log_ret.csv`: Log returns of the data.
 
-## Further Reading
+### 4. **Model Cnn**
+Resources for CNN-based anomaly detection:
+- `2024_11_06_cnn1d_channel.pth`: Saved CNN model.
+- `CnnAnomalyDetector.py`: Script for detecting anomalies using CNN.
+- `autoencoder.py`: Autoencoder model for CNN-based detection.
+- `dynamic_thresholds.py`: Script for dynamic thresholding.
+- `threshold_config.json`: Configuration for thresholds.
 
-This is filler text, please replace this with a explanatory text about further relevant resources for this repo
-- Resource 1
-- Resource 2
-- Resource 3
+### 5. **Model Isolation_Forest**
+Files related to Isolation Forest:
+- `isolation_forests.ipynb`: Jupyter notebook for Isolation Forest analysis.
+- `isolation_forest.png`: Visualization of Isolation Forest results.
+
+### 6. **Model Lstm**
+LSTM-based anomaly detection resources:
+- `LSTM_AE_dynamic.py`: LSTM Autoencoder for dynamic detection.
+- `LSTM_AE_horizontal.py`: LSTM Autoencoder for horizontal detection.
+- `dynamic_treshold.py`: Script for dynamic thresholding.
+- `lstm_autoencoder_model_dynamic.keras`: Trained LSTM Autoencoder model.
+
+### 7. **Model Mahalanobis**
+Scripts for Mahalanobis distance anomaly detection:
+- `mahalanobis_distance_anomalies.ipynb`: Jupyter notebook for Mahalanobis distance analysis.
+- `mahalanobis_distance_anomalies_new.ipynb`: Updated analysis notebook.
+
+### 8. **Model Stats**
+Statistical anomaly detection resources:
+- `Statistical_Model_updated.py`: Updated statistical model.
+- `statistical_model_20241116.py`: Earlier version of the statistical model.
+
+### 9. **Model KNN**
+KNN-based anomaly detection:
+- `KNN_dynamic.ipynb`: Jupyter notebook for dynamic KNN-based detection.
+
+### 10. **Notebook**
+Notebooks for various models and detection techniques:
+- `Mahalanobis distance_detection.ipynb`: Notebook for Mahalanobis distance detection.
+- `Statistical_Model.ipynb`: Notebook for statistical model detection.
+
+### 11. **Scripts and Utilities**
+- `app.py`: Main application script.
+- `index_construction.py`: Script for constructing indices.
+- `stock_data.py`: Data processing utilities.
+- `stramlit_app_untils.py`: Streamlit utilities for the app.
+
+### 12. **NLP**
+Natural language processing scripts:
+- `news_extractor.py`: Extracts news data.
+- `stopwords.txt`: Stopwords file for text processing.
+- `word_cloud.py`: Script for generating word clouds.
+
+### 13. **Pages**
+Streamlit app pages:
+- `1_ConsensusModelAnomaly.py`: Page for consensus model analysis.
+- `2_ModelComparsion.py`: Page for model comparison.
+- `3_ModelsOnSector.py`: Page for sector-based model analysis.
+
+### 14. **Miscellaneous**
+- `README.md`: This file.
+- `requirements.txt`: Python dependencies.
+- `sp_400_midcap.csv`: SP 400 midcap data.
+- `__pycache__`: Compiled Python cache files.
+
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo/anomaly-detection.git
+
