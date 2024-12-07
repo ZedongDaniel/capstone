@@ -93,7 +93,7 @@ Streamlit app pages:
    
 2.	Navigate to the repository directory:
    ```bash
-   cd anomaly-detection
+   cd capstone
    ```
 3.	Install dependencies:
    ```bash
