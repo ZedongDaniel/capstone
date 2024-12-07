@@ -1,6 +1,6 @@
 # 📦 Capstone Charlie Streamlit App 
 
-Description of the app
+This repository contains a comprehensive framework for detecting and analyzing S&P 400 mid-cap 11 sectors return series anomalies. It includes various models, datasets, and anomaly detection and analysis utilities.
 
 ## App Link
 
