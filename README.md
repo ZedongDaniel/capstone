@@ -62,11 +62,6 @@ Statistical anomaly detection resources:
 KNN-based anomaly detection:
 - `KNN_dynamic.ipynb`: Jupyter notebook for dynamic KNN-based detection.
 
-### 10. **Notebook**
-Notebooks for various models and detection techniques:
-- `Mahalanobis distance_detection.ipynb`: Notebook for Mahalanobis distance detection.
-- `Statistical_Model.ipynb`: Notebook for statistical model detection.
-
 ### 11. **Scripts and Utilities**
 - `app.py`: Main application script.
 - `index_construction.py`: Script for constructing indices.
@@ -88,8 +83,7 @@ Streamlit app pages:
 ### 14. **Miscellaneous**
 - `README.md`: This file.
 - `requirements.txt`: Python dependencies.
-- `sp_400_midcap.csv`: SP 400 midcap data.
-- `__pycache__`: Compiled Python cache files.
+- `sp_400_midcap.csv`: SP 400 midcap companies.
 
 ## Installation
 1. Clone the repository:
